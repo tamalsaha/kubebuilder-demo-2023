@@ -1,0 +1,12 @@
+apiVersion: charts.x-helm.dev/v1alpha1
+kind: ChartPreset
+metadata:
+  labels:
+    app.kubernetes.io/name: chartpreset
+    app.kubernetes.io/instance: chartpreset-sample
+    app.kubernetes.io/part-of: kubebuilder-demo-2023
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/created-by: kubebuilder-demo-2023
+  name: chartpreset-sample
+spec:
+  # TODO(user): Add fields here
