@@ -17,8 +17,13 @@ limitations under the License.
 package main
 
 import (
+	"context"
 	"flag"
+	"kubedb.dev/apimachinery/apis/kubedb/v1alpha2"
 	"os"
+	"sigs.k8s.io/controller-runtime/pkg/client"
+	"sigs.k8s.io/controller-runtime/pkg/manager"
+	"time"
 
 	// Import all Kubernetes client auth plugins (e.g. Azure, GCP, OIDC, etc.)
 	// to ensure that exec-entrypoint and run can make use of them.
@@ -33,8 +38,9 @@ import (
 	metricsserver "sigs.k8s.io/controller-runtime/pkg/metrics/server"
 
 	chartsv1alpha1 "github.com/tamalsaha/kubebuilder-demo-2023/api/charts/v1alpha1"
-	chartscontroller "github.com/tamalsaha/kubebuilder-demo-2023/internal/controller/charts"
 	//+kubebuilder:scaffold:imports
+
+	_ "kubedb.dev/apimachinery/apis/kubedb/v1alpha2"
 )
 
 var (
@@ -89,13 +95,6 @@ func main() {
 		os.Exit(1)
 	}
 
-	if err = (&chartscontroller.ChartPresetReconciler{
-		Client: mgr.GetClient(),
-		Scheme: mgr.GetScheme(),
-	}).SetupWithManager(mgr); err != nil {
-		setupLog.Error(err, "unable to create controller", "controller", "ChartPreset")
-		os.Exit(1)
-	}
 	//+kubebuilder:scaffold:builder
 
 	if err := mgr.AddHealthzCheck("healthz", healthz.Ping); err != nil {
@@ -106,6 +105,22 @@ func main() {
 		setupLog.Error(err, "unable to set up ready check")
 		os.Exit(1)
 	}
+
+	mgr.Add(manager.RunnableFunc(func(ctx context.Context) error {
+		for {
+			time.Sleep(10 * time.Second)
+			var db v1alpha2.Postgres
+			key := client.ObjectKey{
+				Namespace: "demo",
+				Name:      "quick-postgres",
+			}
+			err := mgr.GetClient().Get(context.TODO(), key, &db)
+			if err != nil {
+				return err
+			}
+		}
+		return nil
+	}))
 
 	setupLog.Info("starting manager")
 	if err := mgr.Start(ctrl.SetupSignalHandler()); err != nil {
