@@ -19,6 +19,7 @@ package main
 import (
 	"context"
 	"flag"
+	"fmt"
 	"kubedb.dev/apimachinery/apis/kubedb/v1alpha2"
 	"os"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -50,7 +51,7 @@ var (
 
 func init() {
 	utilruntime.Must(clientgoscheme.AddToScheme(scheme))
-
+	utilruntime.Must(v1alpha2.AddToScheme(scheme))
 	utilruntime.Must(chartsv1alpha1.AddToScheme(scheme))
 	//+kubebuilder:scaffold:scheme
 }
@@ -116,7 +117,7 @@ func main() {
 			}
 			err := mgr.GetClient().Get(context.TODO(), key, &db)
 			if err != nil {
-				return err
+				fmt.Println(err)
 			}
 		}
 		return nil
