@@ -17,15 +17,8 @@ limitations under the License.
 package main
 
 import (
-	"context"
 	"flag"
-	"fmt"
-	"kubedb.dev/apimachinery/apis/kubedb/v1alpha2"
 	"os"
-	"sigs.k8s.io/controller-runtime/pkg/client"
-	"sigs.k8s.io/controller-runtime/pkg/manager"
-	"time"
-
 	// Import all Kubernetes client auth plugins (e.g. Azure, GCP, OIDC, etc.)
 	// to ensure that exec-entrypoint and run can make use of them.
 	_ "k8s.io/client-go/plugin/pkg/client/auth"
@@ -37,11 +30,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/healthz"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 	metricsserver "sigs.k8s.io/controller-runtime/pkg/metrics/server"
-
-	chartsv1alpha1 "github.com/tamalsaha/kubebuilder-demo-2023/api/charts/v1alpha1"
 	//+kubebuilder:scaffold:imports
-
-	_ "kubedb.dev/apimachinery/apis/kubedb/v1alpha2"
 )
 
 var (
@@ -51,8 +40,6 @@ var (
 
 func init() {
 	utilruntime.Must(clientgoscheme.AddToScheme(scheme))
-	utilruntime.Must(v1alpha2.AddToScheme(scheme))
-	utilruntime.Must(chartsv1alpha1.AddToScheme(scheme))
 	//+kubebuilder:scaffold:scheme
 }
 
@@ -106,22 +93,6 @@ func main() {
 		setupLog.Error(err, "unable to set up ready check")
 		os.Exit(1)
 	}
-
-	mgr.Add(manager.RunnableFunc(func(ctx context.Context) error {
-		for {
-			time.Sleep(10 * time.Second)
-			var db v1alpha2.Postgres
-			key := client.ObjectKey{
-				Namespace: "demo",
-				Name:      "quick-postgres",
-			}
-			err := mgr.GetClient().Get(context.TODO(), key, &db)
-			if err != nil {
-				fmt.Println(err)
-			}
-		}
-		return nil
-	}))
 
 	setupLog.Info("starting manager")
 	if err := mgr.Start(ctrl.SetupSignalHandler()); err != nil {
