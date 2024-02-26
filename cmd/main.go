@@ -18,6 +18,7 @@ package main
 
 import (
 	"flag"
+	"github.com/tamalsaha/kubebuilder-demo-2023/internal/controller/charts"
 	core "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/fields"
 	cu "kmodules.xyz/client-go/client"
@@ -98,6 +99,14 @@ func main() {
 	})
 	if err != nil {
 		setupLog.Error(err, "unable to start manager")
+		os.Exit(1)
+	}
+
+	if err := (&charts.SecretReconciler{
+		Client: mgr.GetClient(),
+		Scheme: mgr.GetScheme(),
+	}).SetupWithManager(mgr); err != nil {
+		setupLog.Error(err, "unable to set up reconciler")
 		os.Exit(1)
 	}
 
