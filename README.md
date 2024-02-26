@@ -1,5 +1,12 @@
 # kubebuilder-demo-2023
-// TODO(user): Add simple overview of use/purpose
+
+
+```
+kubectl create secret generic my-secret -n default --from-literal=key1=supersecret
+
+kubectl create secret generic my-secret -n kube-system --from-literal=key1=supersecret
+```
+
 
 ## Description
 // TODO(user): An in-depth paragraph about your project and overview of use
