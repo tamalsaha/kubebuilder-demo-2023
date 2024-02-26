@@ -88,8 +88,8 @@ func main() {
 			ByObject: map[client.Object]cache.ByObject{
 				&core.Secret{}: {
 					Namespaces: map[string]cache.Config{
-						"kube-system": {
-							FieldSelector: fields.OneTermEqualSelector("metadata.name", "---"),
+						"default": {
+							FieldSelector: fields.OneTermEqualSelector("metadata.name", "my-secret"),
 						},
 					},
 				},
