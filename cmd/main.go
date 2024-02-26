@@ -18,7 +18,13 @@ package main
 
 import (
 	"flag"
+	core "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/fields"
+	cu "kmodules.xyz/client-go/client"
 	"os"
+	"sigs.k8s.io/controller-runtime/pkg/cache"
+	"sigs.k8s.io/controller-runtime/pkg/client"
+
 	// Import all Kubernetes client auth plugins (e.g. Azure, GCP, OIDC, etc.)
 	// to ensure that exec-entrypoint and run can make use of them.
 	_ "k8s.io/client-go/plugin/pkg/client/auth"
@@ -77,6 +83,18 @@ func main() {
 		// if you are doing or is intended to do any operation such as perform cleanups
 		// after the manager stops then its usage might be unsafe.
 		// LeaderElectionReleaseOnCancel: true,
+		NewClient: cu.NewClient,
+		Cache: cache.Options{
+			ByObject: map[client.Object]cache.ByObject{
+				&core.Secret{}: {
+					Namespaces: map[string]cache.Config{
+						"kube-system": {
+							FieldSelector: fields.OneTermEqualSelector("metadata.name", "---"),
+						},
+					},
+				},
+			},
+		},
 	})
 	if err != nil {
 		setupLog.Error(err, "unable to start manager")
